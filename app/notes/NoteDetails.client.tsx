@@ -1,4 +1,5 @@
 "use client";
+
 import type { NoteClientProps } from "@/types/note";
 import { HydrationBoundary, useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
