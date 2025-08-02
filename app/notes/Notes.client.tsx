@@ -15,7 +15,11 @@ import Pagination from "../../components/Pagination/Pagination";
 import SearchBox from "../../components/SearchBox/SearchBox";
 import Modal from "../../components/Modal/Modal";
 import NoteForm from "../../components/NoteForm/NoteForm";
-import type { NoteClientProps } from "@/types/note";
+import type { DehydratedState } from "@tanstack/react-query";
+
+export type NoteClientProps = {
+  dehydratedState: DehydratedState;
+};
 
 export default function NotesClient({ dehydratedState }: NoteClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,12 +57,6 @@ export default function NotesClient({ dehydratedState }: NoteClientProps) {
       noNotesToastShown.current = false;
     }
   }, [data, isLoading]);
-
-  // useEffect(() => {
-  //   if (isError) {
-  //     showErrorToast("Error");
-  //   }
-  // }, [isError]);
 
   useEffect(() => {
     setCurrentPage(1);

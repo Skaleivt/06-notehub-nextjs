@@ -1,5 +1,3 @@
-import type { DehydratedState } from "@tanstack/react-query";
-
 export interface Note {
   id: string;
   title: string;
@@ -14,6 +12,3 @@ export interface NewNote {
   content: string;
   tag: Note["tag"];
 }
-export type NoteClientProps = {
-  dehydratedState: DehydratedState;
-};

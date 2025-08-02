@@ -1,27 +1,16 @@
 "use client";
 
-import type { NoteClientProps } from "@/types/note";
 import { HydrationBoundary, useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import css from "./NoteDetails.module.css";
 import { fetchNoteById } from "@/lib/api";
-
-export default function NoteDetailsClient({
-  dehydratedState,
-}: NoteClientProps) {
-  const params = useParams();
-  const noteId = params?.id as string;
-  return (
-    <HydrationBoundary state={dehydratedState}>
-      <NoteDetailsPage id={noteId}></NoteDetailsPage>
-    </HydrationBoundary>
-  );
-}
+import type { NoteClientProps } from "../Notes.client";
 
 function NoteDetailsPage({ id }: { id: string }) {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["note", id],
     queryFn: () => fetchNoteById(id),
+    refetchOnMount: false,
   });
 
   if (isLoading) return <p>Loading, please wait...</p>;
@@ -36,5 +25,17 @@ function NoteDetailsPage({ id }: { id: string }) {
         <p className={css.date}>{data.createdAt}</p>
       </div>
     </div>
+  );
+}
+
+export default function NoteDetailsClient({
+  dehydratedState,
+}: NoteClientProps) {
+  const params = useParams();
+  const noteId = params?.id as string;
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <NoteDetailsPage id={noteId}></NoteDetailsPage>
+    </HydrationBoundary>
   );
 }
