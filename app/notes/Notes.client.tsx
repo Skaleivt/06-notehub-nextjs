@@ -8,6 +8,8 @@ import {
   useQuery,
   useQueryClient,
   keepPreviousData,
+  HydrationBoundary,
+  type DehydratedState,
 } from "@tanstack/react-query";
 
 import { fetchNotes } from "../../lib/api";
@@ -19,10 +21,20 @@ import SearchBox from "../../components/SearchBox/SearchBox";
 import Modal from "../../components/Modal/Modal";
 import NoteForm from "../../components/NoteForm/NoteForm";
 
-export default function NotesClient() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [inputValue, setInputValue] = useState("");
+type NoteClientProps = {
+  dehydratedState: DehydratedState;
+  searchQuery: string;
+  currentPage: number;
+};
+
+export default function NotesClient({
+  dehydratedState,
+  searchQuery: initialSearch,
+  currentPage: initialPage,
+}: NoteClientProps) {
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [inputValue, setInputValue] = useState(initialSearch);
   const [isModalOpen, setModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
@@ -37,12 +49,18 @@ export default function NotesClient() {
   };
 
   const { data, isLoading, isSuccess } = useQuery({
-    queryKey: ["note", searchQuery, currentPage],
+    queryKey: ["notes", searchQuery, currentPage],
     queryFn: () => fetchNotes(searchQuery, currentPage),
     placeholderData: keepPreviousData,
     initialData: () =>
-      queryClient.getQueryData(["note", searchQuery, currentPage]),
+      queryClient.getQueryData(["notes", searchQuery, currentPage]),
   });
+
+  const refreshNotes = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["notes", searchQuery, currentPage],
+    });
+  };
 
   const totalPages = data?.totalPages || 0;
 
@@ -64,27 +82,34 @@ export default function NotesClient() {
   }, [searchQuery]);
 
   return (
-    <div className={css.app}>
-      <header className={css.toolbar}>
-        <SearchBox onChange={handleInputChange} value={inputValue} />
-        {totalPages > 0 && (
-          <Pagination
-            totalPages={totalPages}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-          />
+    <HydrationBoundary state={dehydratedState}>
+      <div className={css.app}>
+        <header className={css.toolbar}>
+          <SearchBox onChange={handleInputChange} value={inputValue} />
+          {totalPages > 0 && (
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
+          )}
+          <button onClick={() => setModalOpen(true)} className={css.button}>
+            Create note +
+          </button>
+          {isModalOpen && (
+            <Modal onClose={() => setModalOpen(false)}>
+              <NoteForm
+                onSuccess={refreshNotes}
+                onCancel={() => setModalOpen(false)}
+              />
+            </Modal>
+          )}
+        </header>
+        {isSuccess && (
+          <NoteList onDeleteSuccess={refreshNotes} notes={data.notes} />
         )}
-        <button onClick={() => setModalOpen(true)} className={css.button}>
-          Create note +
-        </button>
-        {isModalOpen && (
-          <Modal onClose={() => setModalOpen(false)}>
-            <NoteForm onCancel={() => setModalOpen(false)} />
-          </Modal>
-        )}
-      </header>
-      {isSuccess && <NoteList notes={data.notes} />}
-      <ToastContainer />
-    </div>
+        <ToastContainer />
+      </div>
+    </HydrationBoundary>
   );
 }
