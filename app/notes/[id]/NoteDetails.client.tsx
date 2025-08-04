@@ -4,7 +4,7 @@ import { HydrationBoundary, useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import css from "./NoteDetails.module.css";
 import { fetchNoteById } from "@/lib/api";
-import type { NoteClientProps } from "../Notes.client";
+import type { DehydratedState } from "@tanstack/react-query";
 
 function NoteDetailsPage({ id }: { id: string }) {
   const { data, isLoading, isError } = useQuery({
@@ -14,6 +14,7 @@ function NoteDetailsPage({ id }: { id: string }) {
   });
 
   if (isLoading) return <p>Loading, please wait...</p>;
+  console.log("loader");
   if (isError || !data) return <p>Something went wrong.</p>;
   return (
     <div className={css.container}>
@@ -22,11 +23,15 @@ function NoteDetailsPage({ id }: { id: string }) {
           <h2>{data.title}</h2>
         </div>
         <p className={css.content}>{data.content}</p>
-        <p className={css.date}>{data.createdAt}</p>
+        <p className={css.date}>{new Date(data.createdAt).toLocaleString()}</p>
       </div>
     </div>
   );
 }
+
+type NoteClientProps = {
+  dehydratedState: DehydratedState;
+};
 
 export default function NoteDetailsClient({
   dehydratedState,
