@@ -9,7 +9,6 @@ import type { NewNote } from "../../types/note";
 
 interface NoteFormProps {
   onCancel: () => void;
-  onSuccess: () => void;
 }
 
 const initialValues: NewNote = {
@@ -18,7 +17,7 @@ const initialValues: NewNote = {
   tag: "Todo",
 };
 
-export default function NoteForm({ onSuccess, onCancel }: NoteFormProps) {
+export default function NoteForm({ onCancel }: NoteFormProps) {
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
@@ -26,7 +25,6 @@ export default function NoteForm({ onSuccess, onCancel }: NoteFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["note"] });
       onCancel();
-      onSuccess();
     },
     onError: () => {
       showErrorToast("Error creating note");

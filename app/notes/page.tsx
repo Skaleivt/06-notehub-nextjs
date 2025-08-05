@@ -1,22 +1,23 @@
 import NotesClient from "./Notes.client";
 import { fetchNotes } from "../../lib/api";
-import { DehydratedState, QueryClient, dehydrate } from "@tanstack/react-query";
-import {} from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
+import type { NoteSearchResponse } from "../../lib/api";
 
 export default async function NotesPage() {
   const queryClient = new QueryClient();
   const searchQuery = "";
   const page = 1;
 
+  const initialData: NoteSearchResponse = await fetchNotes(searchQuery, page);
+
   await queryClient.prefetchQuery({
     queryKey: ["notes", searchQuery, page],
-    queryFn: () => fetchNotes(searchQuery, page),
+    queryFn: () => Promise.resolve(initialData),
   });
-  const dehydratedState: DehydratedState = dehydrate(queryClient);
 
   return (
     <NotesClient
-      dehydratedState={dehydratedState}
+      initialData={initialData}
       searchQuery={searchQuery}
       currentPage={page}
     />

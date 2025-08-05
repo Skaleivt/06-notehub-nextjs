@@ -14,7 +14,6 @@ function NoteDetailsPage({ id }: { id: string }) {
   });
 
   if (isLoading) return <p>Loading, please wait...</p>;
-  console.log("loader");
   if (isError || !data) return <p>Something went wrong.</p>;
   return (
     <div className={css.container}>

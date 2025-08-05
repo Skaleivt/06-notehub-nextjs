@@ -7,10 +7,9 @@ import Link from "next/link";
 
 interface NoteListProps {
   notes: Note[];
-  onDeleteSuccess: () => void;
 }
 
-export default function NoteList({ notes, onDeleteSuccess }: NoteListProps) {
+export default function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
@@ -18,7 +17,6 @@ export default function NoteList({ notes, onDeleteSuccess }: NoteListProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["note"] });
       toast.success("Note deleted successfully");
-      onDeleteSuccess();
     },
     onError: () => {
       toast.error("Error deleting note");
