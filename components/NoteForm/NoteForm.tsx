@@ -23,7 +23,7 @@ export default function NoteForm({ onCancel }: NoteFormProps) {
   const { mutate } = useMutation({
     mutationFn: (newNote: NewNote) => createNote(newNote),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["note"] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
       onCancel();
     },
     onError: () => {
